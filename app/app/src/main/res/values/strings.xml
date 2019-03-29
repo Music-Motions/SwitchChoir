@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">FaceTracking</string>
+    <string name="nose">Nose Count</string>
+</resources>
