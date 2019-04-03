@@ -13,11 +13,13 @@ import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.InstallCallbackInterface;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.core.Core;
 import org.opencv.core.*;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,6 +40,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     Handler handler;
     View v;
 
+    Mat mRgba;
+    Mat mRgbaF;
+    Mat mRgbaT;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,62 +61,60 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 Log.i("Callback", "running button");
             }
         });
+//        Core.setErrorVerbosity(false);
+//        Core.BUI
+        VideoCapture c = new VideoCapture(1);
+//        c.set(Highgui.CV_CAP)
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
+
+        cameraView.setMaxFrameSize(200, 150);
         cameraView.setVisibility(SurfaceView.VISIBLE);
         cameraView.setCameraIndex(1);
+
+        cameraView.enableFpsMeter();
         cameraView.setCvCameraViewListener(this);
         cameraView.enableView();
 
+
         output = findViewById(R.id.nb_noses);
 
-        BaseLoaderCallback callback = new BaseLoaderCallback(this) {
-            @Override
-            public void onManagerConnected(int status) {
-                switch (status) {
-                    case LoaderCallbackInterface.SUCCESS:
-                        InputStream inputStream = getResources().openRawResource(R.raw.haarcascade_mcs_nose);
-                        File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-                        File cascadeFile = new File(cascadeDir, "cascade.xml");
-                        FileOutputStream outputStream = null;
-                        try {
-                            outputStream = new FileOutputStream(cascadeFile);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                            System.exit(9);
-                        }
-                        byte[] buffer = new byte[4096];
-                        int bytesRead;
+        InputStream inputStream = getResources().openRawResource(R.raw.haarcascade_mcs_nose);
+        File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+        File cascadeFile = new File(cascadeDir, "cascade.xml");
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(cascadeFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.exit(9);
+        }
+        byte[] buffer = new byte[4096];
+        int bytesRead;
 
-                        try {
-                            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                                outputStream.write(buffer, 0, bytesRead);
-                            }
-                            inputStream.close();
-                            outputStream.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        classifier = new CascadeClassifier(cascadeFile.getAbsolutePath());
-                        Log.wtf("Classifier", cascadeFile.getAbsolutePath());
-                        if (classifier.empty()) {
-                            Log.wtf("Cascade Error", "Failed to load cascade classifier");
-//                            classifier = null;
-                        }
-                        break;
-                    default:
-                        Log.wtf("FRICK", "FAILED LOADING CASCADE");
-                        break;
-                }
-                Log.i("Loader", "loaded");
+        try {
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
             }
-        };
+            inputStream.close();
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        classifier = new CascadeClassifier(cascadeFile.getAbsolutePath());
+        Log.wtf("Classifier", cascadeFile.getAbsolutePath());
+        if (classifier.empty()) {
+            Log.wtf("Cascade Error", "Failed to load cascade classifier");
+        }
     }
 
     @Override
     public void onCameraViewStarted(int width, int height) {
         Log.i("CameraView", "started");
         handler = new Handler();
+        mRgba = new Mat(height, width, CvType.CV_8UC4);
+        mRgbaF = new Mat(height, width, CvType.CV_8UC4);
+        mRgbaT = new Mat(width, width, CvType.CV_8UC4);
     }
 
     @Override
@@ -121,12 +125,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat frame = inputFrame.gray();
-        Mat rgb = inputFrame.rgba();
-//        Core.flip(frame, frame, 1);
+        Mat mRgba = inputFrame.rgba();
+        Core.rotate(mRgba, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
+        Size size = new Size(frame.size().width, frame.size().height);
+        Imgproc.resize(mRgbaT, mRgba, size, 0,0, 0);
+//        Core.flip(mRgbaF, mRgba, 1 );
         MatOfRect rects = new MatOfRect();
         if (classifier != null)
             classifier.detectMultiScale(frame, rects);
-        else Log.wtf("CameraListener", "Null classifier");
+//        else Log.wtf("CameraListener", "Null classifier");
         final Rect[] r = rects.toArray();
         handler.post(new Runnable() {
             @Override
@@ -136,9 +143,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         });
         Rect[] facesArray = rects.toArray();
         for (int i = 0; i < facesArray.length; i++)
-            Imgproc.rectangle(rgb, facesArray[i].tl(), facesArray[i].br(), new Scalar(100), 3);
+            Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(100), 3);
 //        Log.i("Running", "Running");
-        return rgb;
+        return mRgba;
     }
 
 }
