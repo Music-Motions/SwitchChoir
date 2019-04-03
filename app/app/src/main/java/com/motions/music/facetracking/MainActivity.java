@@ -112,8 +112,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void onCameraViewStarted(int width, int height) {
         Log.i("CameraView", "started");
         handler = new Handler();
-        mRgba = new Mat(height, width, CvType.CV_8UC4);
-        mRgbaF = new Mat(height, width, CvType.CV_8UC4);
         mRgbaT = new Mat(width, width, CvType.CV_8UC4);
     }
 
@@ -125,27 +123,25 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat frame = inputFrame.gray();
-        Mat mRgba = inputFrame.rgba();
-        Core.rotate(mRgba, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
-        Size size = new Size(frame.size().width, frame.size().height);
-        Imgproc.resize(mRgbaT, mRgba, size, 0,0, 0);
+        Core.rotate(frame, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
+//        Size size = new Size(frame.size().width, frame.size().height);
+        Imgproc.resize(mRgbaT, frame, frame.size(), 0,0, 0);
 //        Core.flip(mRgbaF, mRgba, 1 );
         MatOfRect rects = new MatOfRect();
         if (classifier != null)
             classifier.detectMultiScale(frame, rects);
 //        else Log.wtf("CameraListener", "Null classifier");
-        final Rect[] r = rects.toArray();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                output.setText(Integer.toString(r.length));
-            }
-        });
+//        final Rect[] r = rects.toArray();
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                output.setText(Integer.toString(r.length));
+//            }
+//        });
         Rect[] facesArray = rects.toArray();
         for (int i = 0; i < facesArray.length; i++)
-            Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(100), 3);
-//        Log.i("Running", "Running");
-        return mRgba;
+            Imgproc.rectangle(frame, facesArray[i].tl(), facesArray[i].br(), new Scalar(100), 3);
+        return frame;
     }
 
 }
