@@ -34,50 +34,34 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     CascadeClassifier classifier;
-    TextView output;
-    boolean breakLoop = false;
-    Thread thread;
-    Handler handler;
-    View v;
 
-    Mat mRgba;
-    Mat mRgbaF;
     Mat mRgbaT;
-
+    NoseThresholder nosePlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        System.out.println("Hello world " + Core.VERSION);
-        thread = Thread.currentThread();
 
+        // Button ensuring OpenCV installed
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast toast = Toast.makeText(MainActivity.this, Core.VERSION, Toast.LENGTH_LONG);
                 toast.show();
-                breakLoop = true;
                 Log.i("Callback", "running button");
             }
         });
-//        Core.setErrorVerbosity(false);
-//        Core.BUI
-        VideoCapture c = new VideoCapture(1);
-//        c.set(Highgui.CV_CAP)
+
+        // Set up camera view, used to get frames
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
-
         cameraView.setMaxFrameSize(200, 150);
-        cameraView.setVisibility(SurfaceView.VISIBLE);
+        cameraView.setVisibility(SurfaceView.GONE);
         cameraView.setCameraIndex(1);
-
-        cameraView.enableFpsMeter();
         cameraView.setCvCameraViewListener(this);
         cameraView.enableView();
 
-
-        output = findViewById(R.id.nb_noses);
-
+        // Load classifier into code
         InputStream inputStream = getResources().openRawResource(R.raw.haarcascade_mcs_nose);
         File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
         File cascadeFile = new File(cascadeDir, "cascade.xml");
@@ -100,18 +84,31 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         classifier = new CascadeClassifier(cascadeFile.getAbsolutePath());
         Log.wtf("Classifier", cascadeFile.getAbsolutePath());
         if (classifier.empty()) {
             Log.wtf("Cascade Error", "Failed to load cascade classifier");
         }
+
+        // Set up listener
+        nosePlayer = new NoseThresholder();
+
+        nosePlayer.setNoseListener(new NoseThresholder.NoseListener() {
+            @Override
+            public void onNoseThresholdPassed(Rect r) {
+                //PLAY SOUND
+            }
+        });
     }
 
+    /**
+     * Creates frame used for rotating, as image is inputted rotated 90 degrees
+     * @param width -  the width of the frames that will be delivered
+     * @param height - the height of the frames that will be delivered
+     */
     @Override
     public void onCameraViewStarted(int width, int height) {
         Log.i("CameraView", "started");
-        handler = new Handler();
         mRgbaT = new Mat(width, width, CvType.CV_8UC4);
     }
 
@@ -120,27 +117,38 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
+    /**
+     * Takes camera frame, runs classifier, calls listener if nsoe detected
+     * @param inputFrame current frame to process
+     * @return output frame (unused)
+     */
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        // Normalize image
         Mat frame = inputFrame.gray();
         Core.rotate(frame, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
-//        Size size = new Size(frame.size().width, frame.size().height);
         Imgproc.resize(mRgbaT, frame, frame.size(), 0,0, 0);
-//        Core.flip(mRgbaF, mRgba, 1 );
         MatOfRect rects = new MatOfRect();
+
+        // Detect noses
         if (classifier != null)
             classifier.detectMultiScale(frame, rects);
-//        else Log.wtf("CameraListener", "Null classifier");
-//        final Rect[] r = rects.toArray();
-//        handler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                output.setText(Integer.toString(r.length));
-//            }
-//        });
+        else Log.wtf("CameraListener", "Null classifier");
+
+        // Sort noses, largest is "real" nose
         Rect[] facesArray = rects.toArray();
-        for (int i = 0; i < facesArray.length; i++)
-            Imgproc.rectangle(frame, facesArray[i].tl(), facesArray[i].br(), new Scalar(100), 3);
+        Rect nose = null;
+        for (int i = 0; i < facesArray.length; i++) {
+            if (nose == null)
+                nose = facesArray[i];
+            else if (facesArray[i].width * facesArray[i].height > nose.width*nose.height)
+                nose = facesArray[i];
+        }
+
+        // Call listener with nose
+        if (nose != null) {
+            nosePlayer.listener.onNoseThresholdPassed(nose);
+        }
         return frame;
     }
 
