@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">FaceTracking</string>
     <string name="nose">Nose Count</string>
+    <string name="app_name">SampleUI</string>
+    <string name="Guitar" />
+    <string name="guitar">Guitar</string>
+    <string name="piano">piano</string>
+    <string name="button">Button</string>
+    <string name="recorder">recorder</string>
+    <string name="saver">Saver</string>
+    <string name="exporter">exporter</string>
+    <string name="record">record</string>
+    <string name="end">record</string>
+    <string name="play">record</string>
+    <string name="stop">record</string>
+    <string name="pianokey">pianoKey</string>
 </resources>

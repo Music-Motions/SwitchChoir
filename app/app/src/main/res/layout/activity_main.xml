@@ -4,39 +4,119 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:screenOrientation="landscape"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/nose"
-            android:textSize="36sp" />
+        <LinearLayout
+            android:id="@+id/pianoBoard"
+            android:layout_width="wrap_content"
+            android:layout_height="477dp"
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/nb_noses"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number" />
+            <ImageButton
+                android:id="@+id/keyC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/dividerVertical"
+                android:contentDescription="@string/pianokey"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/keyboardc" />
+
+            <ImageButton
+                android:id="@+id/keyD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/dividerVertical"
+                android:contentDescription="@string/pianokey"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/keyboardd" />
+
+            <ImageButton
+                android:id="@+id/keyE"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/dividerVertical"
+                android:contentDescription="@string/pianokey"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/keyboarde" />
+
+            <ImageButton
+                android:id="@+id/keyF"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?attr/dividerVertical"
+                android:contentDescription="@string/pianokey"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/keyboardf" />
+
+            <ImageButton
+                android:id="@+id/keyG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/dividerVertical"
+                android:contentDescription="@string/pianokey"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/keyboardg" />
+
+        </LinearLayout>
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/rec"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:scaleType="fitCenter"
+            android:text="@string/record"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <org.opencv.android.JavaCameraView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/java_surface_view" />
+        <Button
+            android:id="@+id/saver"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+
+            android:text="@string/saver" />
+
+        <Button
+            android:id="@+id/exporter"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+
+            android:text="@string/exporter" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
