@@ -1,25 +1,22 @@
 package com.motions.music.facetracking;
 
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.os.Handler;
+import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaRecorder;
 
-import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.InstallCallbackInterface;
-import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.core.Core;
 import org.opencv.core.*;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.videoio.VideoCapture;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,6 +34,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     Mat mRgbaT;
     NoseThresholder nosePlayer;
+    private MediaPlayer mp;
+    private int width = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,19 +43,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setContentView(R.layout.activity_main);
 
         // Button ensuring OpenCV installed
-        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast toast = Toast.makeText(MainActivity.this, Core.VERSION, Toast.LENGTH_LONG);
-                toast.show();
-                Log.i("Callback", "running button");
-            }
-        });
+//        findViewById(R.id.rec).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast toast = Toast.makeText(MainActivity.this, Core.VERSION, Toast.LENGTH_LONG);
+//                toast.show();
+//                Log.i("Callback", "running button");
+//            }
+//        });
 
         // Set up camera view, used to get frames
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
-        cameraView.setMaxFrameSize(200, 150);
-        cameraView.setVisibility(SurfaceView.GONE);
+//        cameraView.setMaxFrameSize(200, 150);
+        cameraView.setVisibility(SurfaceView.VISIBLE);
         cameraView.setCameraIndex(1);
         cameraView.setCvCameraViewListener(this);
         cameraView.enableView();
@@ -96,9 +95,27 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         nosePlayer.setNoseListener(new NoseThresholder.NoseListener() {
             @Override
             public void onNoseThresholdPassed(Rect r) {
-                //PLAY SOUND
+                int x, y;
+                x = r.x;
+                y = r.y;
+                Log.wtf("NoseListener", "Nose found at: "+Integer.toString(r.x));
+                int note;
+                if (x < width/2)
+                    note = R.raw.pianoa;
+                else
+                    note = R.raw.pianog;
+                mp = MediaPlayer.create(MainActivity.this, note);
+                mp.start();
+                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.release();//Releases system resources
+                    }
+                });
             }
         });
+
+        Log.wtf("OnCreate", "Done");
     }
 
     /**
@@ -108,23 +125,24 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
      */
     @Override
     public void onCameraViewStarted(int width, int height) {
-        Log.i("CameraView", "started");
+        Log.wtf("CameraView", "started");
         mRgbaT = new Mat(width, width, CvType.CV_8UC4);
+        this.width = width;
     }
 
     @Override
     public void onCameraViewStopped() {
 
     }
-
     /**
-     * Takes camera frame, runs classifier, calls listener if nsoe detected
+     * Takes camera frame, runs classifier, calls listener if nose detected
      * @param inputFrame current frame to process
      * @return output frame (unused)
      */
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        // Normalize image
+//        Log.wtf("Grant", Integer.toString(inputFrame.gray().width()));
+//         Normalize image
         Mat frame = inputFrame.gray();
         Core.rotate(frame, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
         Imgproc.resize(mRgbaT, frame, frame.size(), 0,0, 0);
@@ -146,8 +164,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
 
         // Call listener with nose
+//        Log.wtf("frame", Integer.toString(frame.width()) +" "+ Integer.toString(frame.height()));
         if (nose != null) {
             nosePlayer.listener.onNoseThresholdPassed(nose);
+//            Log.wtf("Nose","yay");
+        } else {
+//            Log.wtf("No nose", Integer.toString(frame.width()));
         }
         return frame;
     }

@@ -1,4 +1,4 @@
-package com.example.sampleui;
+package com.motions.music.facetracking;
 
 import android.Manifest;
 import android.content.Context;
@@ -26,7 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity {
+public class UIandRecord extends AppCompatActivity {
 
     private ImageButton keyC = null;
     private ImageButton keyD = null;
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         keyC.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
-                mp = MediaPlayer.create(MainActivity.this, R.raw.pianoc);
+                mp = MediaPlayer.create(UIandRecord.this, R.raw.pianoc);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
                     @Override
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         keyD.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
-                mp = MediaPlayer.create(MainActivity.this, R.raw.pianod);
+                mp = MediaPlayer.create(UIandRecord.this, R.raw.pianod);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
                     @Override
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         keyE.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
-                mp = MediaPlayer.create(MainActivity.this, R.raw.pianoe);
+                mp = MediaPlayer.create(UIandRecord.this, R.raw.pianoe);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
                     @Override
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         keyF.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
-                mp = MediaPlayer.create(MainActivity.this, R.raw.pianof);
+                mp = MediaPlayer.create(UIandRecord.this, R.raw.pianof);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
                     @Override
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
         keyG.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
-                mp = MediaPlayer.create(MainActivity.this, R.raw.pianog);
+                mp = MediaPlayer.create(UIandRecord.this, R.raw.pianog);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
                     @Override
@@ -283,8 +283,4 @@ public class MainActivity extends AppCompatActivity {
     public void stopPlayback() {
 
     }
-
-
-
-
 }
