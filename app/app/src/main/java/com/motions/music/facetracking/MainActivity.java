@@ -36,21 +36,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     NoseThresholder nosePlayer;
     private MediaPlayer mp;
     private int width = -1;
+    private int height = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Button ensuring OpenCV installed
-//        findViewById(R.id.rec).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast toast = Toast.makeText(MainActivity.this, Core.VERSION, Toast.LENGTH_LONG);
-//                toast.show();
-//                Log.i("Callback", "running button");
-//            }
-//        });
 
         // Set up camera view, used to get frames
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
@@ -98,9 +89,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 int x, y;
                 x = r.x;
                 y = r.y;
-                Log.wtf("NoseListener", "Nose found at: "+Integer.toString(r.x));
+                double angle = Math.atan((double) (x - width / 2) / (double) (y - height / 2));
+//                Log.wtf("NoseListener", "Nose found at: " + Integer.toString(r.x));
                 int note;
-                if (x < width/2)
+                if (x < width / 2)
                     note = R.raw.pianoa;
                 else
                     note = R.raw.pianog;
@@ -120,32 +112,35 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     /**
      * Creates frame used for rotating, as image is inputted rotated 90 degrees
-     * @param width -  the width of the frames that will be delivered
+     *
+     * @param width  -  the width of the frames that will be delivered
      * @param height - the height of the frames that will be delivered
      */
     @Override
     public void onCameraViewStarted(int width, int height) {
-        Log.wtf("CameraView", "started");
+        Log.i("CameraView", "started");
         mRgbaT = new Mat(width, width, CvType.CV_8UC4);
         this.width = width;
+        this.height = height;
     }
 
     @Override
     public void onCameraViewStopped() {
 
     }
+
     /**
      * Takes camera frame, runs classifier, calls listener if nose detected
+     *
      * @param inputFrame current frame to process
      * @return output frame (unused)
      */
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-//        Log.wtf("Grant", Integer.toString(inputFrame.gray().width()));
 //         Normalize image
         Mat frame = inputFrame.gray();
         Core.rotate(frame, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
-        Imgproc.resize(mRgbaT, frame, frame.size(), 0,0, 0);
+        Imgproc.resize(mRgbaT, frame, frame.size(), 0, 0, 0);
         MatOfRect rects = new MatOfRect();
 
         // Detect noses
@@ -156,22 +151,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         // Sort noses, largest is "real" nose
         Rect[] facesArray = rects.toArray();
         Rect nose = null;
-        for (int i = 0; i < facesArray.length; i++) {
+        for (Rect feature : facesArray) {
             if (nose == null)
-                nose = facesArray[i];
-            else if (facesArray[i].width * facesArray[i].height > nose.width*nose.height)
-                nose = facesArray[i];
+                nose = feature;
+            else if (feature.width * feature.height > nose.width * nose.height)
+                nose = feature;
         }
 
-        // Call listener with nose
-//        Log.wtf("frame", Integer.toString(frame.width()) +" "+ Integer.toString(frame.height()));
-        if (nose != null) {
+        if (nose != null)
             nosePlayer.listener.onNoseThresholdPassed(nose);
-//            Log.wtf("Nose","yay");
-        } else {
-//            Log.wtf("No nose", Integer.toString(frame.width()));
-        }
-        return frame;
+        return new Mat();
     }
 
 }
