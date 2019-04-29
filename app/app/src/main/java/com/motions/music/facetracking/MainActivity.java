@@ -1,16 +1,12 @@
 package com.motions.music.facetracking;
 
 import android.content.Context;
-import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaRecorder;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.core.Core;
@@ -89,13 +85,31 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 int x, y;
                 x = r.x;
                 y = r.y;
-                double angle = Math.atan((double) (x - width / 2) / (double) (y - height / 2));
-//                Log.wtf("NoseListener", "Nose found at: " + Integer.toString(r.x));
                 int note;
-                if (x < width / 2)
-                    note = R.raw.pianoa;
-                else
+                double angle = Math.toDegrees(Math.atan((double) (x - width / 2) / (double) (y - height / 2)));
+//                Log.wtf("NoseListener", "Nose found at: " + Integer.toString(r.x));
+                if (337.5 < angle || angle < 22.5)
+                    note = R.raw.pianoc;
+                else if (22.5 <= angle && angle < 67.5)
+                    note = R.raw.pianod;
+                else if (67.5 <= angle && angle < 112.5)
+                    note = R.raw.pianoe;
+                else if (112.5 <= angle && angle < 157.5)
+                    note = R.raw.pianof;
+                else if (157.5 <= angle && angle < 202.5)
                     note = R.raw.pianog;
+                else if (202.5 <= angle && angle < 247.5)
+                    note = R.raw.pianoa;
+                else if (247.5 <= angle && angle < 292.5)
+                    note = R.raw.pianob;
+                else // needs to be higher C
+                    note = R.raw.pianoc;
+//
+//
+//                if (x < width / 2)
+//                    note = R.raw.pianoa;
+//                else
+//                    note = R.raw.pianog;
                 mp = MediaPlayer.create(MainActivity.this, note);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
