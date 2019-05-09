@@ -1,11 +1,13 @@
 package com.motions.music.facetracking;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +27,7 @@ import org.opencv.imgproc.Imgproc;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -56,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Button keyGflat = null;
     private Button keyAflat = null;
     private Button keyBflat = null;
-    private Button keyD5flat = null;
 
 
     private Button keyCbottom = null;
@@ -80,6 +82,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -145,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                     }
                     Log.d("Suhani", "5 End in method");
                     player.setText("Stop");
-                    player.setBackgroundResource(R.drawable.stopsign);
+//                    player.setBackgroundResource(R.drawable.stopsign);
 
                 } else {//Stop Playback
                     stopPlayback();
@@ -182,8 +187,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         });
 
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
 
         // Set up camera view, used to get frames
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
@@ -236,31 +240,32 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 //                Log.wtf("NoseListener", "Nose found at: " + Integer.toString(r.x));
                 String name;
                 if (337.5 < angle || angle < 22.5) {
-                    note = R.raw.pianoc;
+                    note = R.raw.keyc;
                     name = "low c";
                 } else if (22.5 <= angle && angle < 67.5) {
-                    note = R.raw.pianod;
+                    note = R.raw.keyd;
                     name = "d";
                 } else if (67.5 <= angle && angle < 112.5) {
-                    note = R.raw.pianoe;
+                    note = R.raw.keye;
                     name = "e";
                 } else if (112.5 <= angle && angle < 157.5) {
-                    note = R.raw.pianof;
+                    note = R.raw.keyf;
                     name = "f";
                 } else if (157.5 <= angle && angle < 202.5) {
-                    note = R.raw.pianog;
+                    note = R.raw.keyg;
                     name = "g";
                 } else if (202.5 <= angle && angle < 247.5) {
-                    note = R.raw.pianoa;
+                    note = R.raw.keya;
                     name = "a";
                 } else if (247.5 <= angle && angle < 292.5) {
-                    note = R.raw.pianob;
+                    note = R.raw.keyb;
                     name = "b";
                 } else {// needs to be higher C
-                    note = R.raw.pianoc;
+                    note = R.raw.keyc5;
                     name = "c";
                 }
-                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
+//                Looper.prepare();
+//                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
 
                 mp = MediaPlayer.create(MainActivity.this, note);
                 mp.start();
@@ -281,6 +286,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void buttonSound() {//assigns sounds for all buttons
 
         keyCtop = (Button) this.findViewById(R.id.keyCtop);
+        Log.wtf("Yikes", keyCtop.toString());
+        Log.wtf("Yikes", Integer.toString(R.id.keyCtop));
         keyCtop.setSoundEffectsEnabled(false);
 
         keyDflat = (Button) this.findViewById(R.id.keyDflat);
@@ -319,8 +326,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         keyC5top = (Button) this.findViewById(R.id.keyC5top);
         keyC5top.setSoundEffectsEnabled(false);
 
-        keyD5flat = (Button) this.findViewById(R.id.keyD5flat);
-        keyD5flat.setSoundEffectsEnabled(false);
 
 
         //bottom parts of the keys initialized
@@ -352,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         keyCtop.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keya2);
+                mp = MediaPlayer.create(MainActivity.this, R.raw.keya);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
                     @Override
@@ -623,15 +628,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                     @Override
                     public void onCompletion(MediaPlayer mp) {
                         mp.release();//Releases system resources
-
                     }
                 });
                 return true;
-
-
             }
-
         });
+
         keyAbottom.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -726,24 +728,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 mp = MediaPlayer.create(MainActivity.this, R.raw.keyc5);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-
-                    }
-                });
-                return true;
-
-
-            }
-
-        });
-        keyD5flat.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keydb5);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
                     @Override
@@ -884,7 +868,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         if (nose != null)
             nosePlayer.listener.onNoseThresholdPassed(nose);
-        return new Mat();
+//        return new Mat();
+        return frame;
     }
 
 }

@@ -140,16 +140,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/keyD5flat"
-        android:layout_width="29.6875dp"
-        android:layout_height="177dp"
-        android:layout_marginTop="8dp"
-        android:background="@android:color/black"
-
-        app:layout_constraintStart_toEndOf="@+id/keyC5top"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
         android:id="@+id/keyCbottom"
         android:layout_width="118.75dp"
         android:layout_height="118dp"

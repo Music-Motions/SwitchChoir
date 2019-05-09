@@ -4,126 +4,253 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:screenOrientation="landscape"
-    tools:context=".MainActivity">
+    android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 
     <org.opencv.android.JavaCameraView
+        android:id="@+id/java_surface_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/java_surface_view" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:orientation="vertical"
+    <Button
+        android:id="@+id/keyCtop"
+        android:layout_width="89.0625dp"
+        android:layout_height="177dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#FF1D15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyDflat"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/black"
+        app:layout_constraintStart_toEndOf="@+id/keyCtop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyDtop"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="#FF6B20"
+        app:layout_constraintStart_toEndOf="@+id/keyDflat"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyEflat"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/black"
+        app:layout_constraintStart_toEndOf="@+id/keyDtop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyEtop"
+        android:layout_width="89.0625dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="#FFFC31"
+        app:layout_constraintStart_toEndOf="@+id/keyEflat"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="276dp" />
+
+    <Button
+        android:id="@+id/keyFtop"
+        android:layout_width="89.0625dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="#3EC300"
+        app:layout_constraintStart_toEndOf="@+id/keyEtop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyGflat"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/black"
+        app:layout_constraintStart_toEndOf="@+id/keyFtop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/keyGtop"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="#02A9EA"
+        app:layout_constraintStart_toEndOf="@+id/keyGflat"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyAflat"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/black"
+        app:layout_constraintStart_toEndOf="@+id/keyGtop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/keyAtop"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="#5C6492"
+
+        app:layout_constraintStart_toEndOf="@+id/keyAflat"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyBflat"
+        android:layout_width="59.375dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/black"
+
+        app:layout_constraintStart_toEndOf="@+id/keyAtop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyBtop"
+        android:layout_width="89.0625dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+
+        android:background="#B438F4"
+        app:layout_constraintStart_toEndOf="@+id/keyBflat"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="749dp" />
+
+    <Button
+        android:id="@+id/keyC5top"
+        android:layout_width="89.0625dp"
+        android:layout_height="177dp"
+        android:layout_marginTop="8dp"
+        android:background="#FF1D15"
+        app:layout_constraintStart_toEndOf="@+id/keyBtop"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/keyCbottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:background="#FF1D15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/keyCtop" />
+
+    <Button
+        android:id="@+id/keyDbottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+        android:background="#FF6B20"
+        app:layout_constraintStart_toEndOf="@+id/keyCbottom"
+        app:layout_constraintTop_toBottomOf="@+id/keyDtop" />
+
+    <Button
+        android:id="@+id/keyEbottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+        android:background="#FFFC31"
+        app:layout_constraintStart_toEndOf="@+id/keyDbottom"
+        app:layout_constraintTop_toBottomOf="@+id/keyEtop" />
+
+    <Button
+        android:id="@+id/keyFbottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+
+        android:background="#3EC300"
+        app:layout_constraintStart_toEndOf="@+id/keyEbottom"
+        app:layout_constraintTop_toBottomOf="@+id/keyFtop" />
+
+
+    <Button
+        android:id="@+id/keyGbottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+        android:background="#02A9EA"
+        app:layout_constraintStart_toEndOf="@+id/keyFbottom"
+        app:layout_constraintTop_toBottomOf="@+id/keyGtop" />
+
+    <Button
+        android:id="@+id/keyAbottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+        android:background="#5C6492"
+        app:layout_constraintStart_toEndOf="@+id/keyGbottom"
+        app:layout_constraintTop_toBottomOf="@+id/keyAtop" />
+
+    <Button
+        android:id="@+id/keyBbottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+        android:background="#B438F4"
+        app:layout_constraintStart_toEndOf="@+id/keyAbottom"
+        app:layout_constraintTop_toBottomOf="@+id/keyBtop" />
+
+    <Button
+        android:id="@+id/keyC5bottom"
+        android:layout_width="118.75dp"
+        android:layout_height="118dp"
+        android:background="#FF1D15"
+        app:layout_constraintStart_toEndOf="@+id/keyBbottom"
+        app:layout_constraintTop_toBottomOf="@+id/keyC5top" />
+
+
+    <Button
+        android:id="@+id/rec"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="322dp"
+        android:layout_height="139.5dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="fitCenter"
+        android:text="Record"
+        android:textSize="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/keyFbottom" />
 
-        <LinearLayout
-            android:id="@+id/pianoBoard"
-            android:layout_width="wrap_content"
-            android:layout_height="477dp"
-            android:orientation="horizontal">
+    <Button
+        android:id="@+id/player"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="322dp"
+        android:layout_height="139.5dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="play"
+        android:textSize="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/rec"
+        app:layout_constraintTop_toBottomOf="@+id/keyGbottom" />
 
-            <ImageButton
-                android:id="@+id/keyC"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/dividerVertical"
-                android:contentDescription="@string/pianokey"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/keyboardc" />
+    <Button
+        android:id="@+id/exporter"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="322dp"
+        android:layout_height="139.5dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:text="export"
+        android:textSize="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/player"
+        app:layout_constraintTop_toBottomOf="@+id/keyBbottom" />
 
-            <ImageButton
-                android:id="@+id/keyD"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/dividerVertical"
-                android:contentDescription="@string/pianokey"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/keyboardd" />
-
-            <ImageButton
-                android:id="@+id/keyE"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/dividerVertical"
-                android:contentDescription="@string/pianokey"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/keyboarde" />
-
-            <ImageButton
-                android:id="@+id/keyF"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?attr/dividerVertical"
-                android:contentDescription="@string/pianokey"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/keyboardf" />
-
-            <ImageButton
-                android:id="@+id/keyG"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?attr/dividerVertical"
-                android:contentDescription="@string/pianokey"
-                android:scaleType="fitXY"
-                app:srcCompat="@drawable/keyboardg" />
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/rec"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:scaleType="fitCenter"
-            android:text="@string/record"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/saver"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-
-            android:text="@string/saver" />
-
-        <Button
-            android:id="@+id/exporter"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-
-            android:text="@string/exporter" />
-
-
-
-    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
