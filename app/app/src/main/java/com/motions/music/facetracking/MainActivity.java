@@ -186,11 +186,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         });
 
 
-
-
         // Set up camera view, used to get frames
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
-//        cameraView.setMaxFrameSize(200, 150);
+        cameraView.setMaxFrameSize(200, 150);
         cameraView.setVisibility(SurfaceView.VISIBLE);
         cameraView.setCameraIndex(1);
         cameraView.setCvCameraViewListener(this);
@@ -263,19 +261,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                     note = R.raw.keyc5;
                     name = "c";
                 }
-//                Looper.prepare();
-//                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
+                Log.wtf("Face", name+" "+angle);
 
                 mp = MediaPlayer.create(MainActivity.this, note);
                 mp.start();
-                mp.setOnCompletionListener(new
-
-                                                   OnCompletionListener() {//When sound ends
-                                                       @Override
-                                                       public void onCompletion(MediaPlayer mp) {
-                                                           mp.release();//Releases system resources
-                                                       }
-                                                   });
+                mp.setOnCompletionListener(new OnCompletionListener() { //When sound ends
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.release();//Releases system resources
+                    }
+                });
             }
         });
 
@@ -324,7 +319,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         keyC5top = (Button) this.findViewById(R.id.keyC5top);
         keyC5top.setSoundEffectsEnabled(false);
-
 
 
         //bottom parts of the keys initialized
@@ -863,6 +857,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 nose = feature;
             else if (feature.width * feature.height > nose.width * nose.height)
                 nose = feature;
+            Imgproc.rectangle(frame, feature.tl(), feature.br(), new Scalar(100), 3);
+
         }
 
         if (nose != null)
