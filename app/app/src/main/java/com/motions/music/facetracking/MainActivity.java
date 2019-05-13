@@ -188,11 +188,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         // Set up camera view, used to get frames
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
-        cameraView.setMaxFrameSize(200, 150);
+//        cameraView
+        cameraView.setMaxFrameSize(320, 240);
         cameraView.setVisibility(SurfaceView.VISIBLE);
         cameraView.setCameraIndex(1);
         cameraView.setCvCameraViewListener(this);
         cameraView.enableView();
+
 
         // Load classifier into code
         InputStream inputStream = getResources().openRawResource(R.raw.haarcascade_mcs_nose);
@@ -221,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Log.wtf("Classifier", cascadeFile.getAbsolutePath());
         if (classifier.empty()) {
             Log.wtf("Cascade Error", "Failed to load cascade classifier");
+            Toast.makeText(this, "Cascade failure", Toast.LENGTH_LONG);
         }
 
         // Set up listener
@@ -236,32 +239,48 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 double angle = Math.toDegrees(Math.atan((double) (x - width / 2) / (double) (y - height / 2)));
 //                Log.wtf("NoseListener", "Nose found at: " + Integer.toString(r.x));
                 String name;
-                if (337.5 < angle || angle < 22.5) {
+                if (x < width / 8)
                     note = R.raw.keyc;
-                    name = "low c";
-                } else if (22.5 <= angle && angle < 67.5) {
+                else if (x < 2 * width / 8)
                     note = R.raw.keyd;
-                    name = "d";
-                } else if (67.5 <= angle && angle < 112.5) {
+                else if (x < 3 * width / 8)
                     note = R.raw.keye;
-                    name = "e";
-                } else if (112.5 <= angle && angle < 157.5) {
+                else if (x < 4 * width / 8)
                     note = R.raw.keyf;
-                    name = "f";
-                } else if (157.5 <= angle && angle < 202.5) {
+                else if (x < 5 * width / 8)
                     note = R.raw.keyg;
-                    name = "g";
-                } else if (202.5 <= angle && angle < 247.5) {
+                else if (x < 6 * width / 8)
                     note = R.raw.keya;
-                    name = "a";
-                } else if (247.5 <= angle && angle < 292.5) {
+                else if (x < 7 * width)
                     note = R.raw.keyb;
-                    name = "b";
-                } else {// needs to be higher C
+                else
                     note = R.raw.keyc5;
-                    name = "c";
-                }
-                Log.wtf("Face", name+" "+angle);
+//                if (337.5 < angle || angle < 22.5) {
+//                    note = R.raw.keyc;
+//                    name = "low c";
+//                } else if (22.5 <= angle && angle < 67.5) {
+//                    note = R.raw.keyd;
+//                    name = "d";
+//                } else if (67.5 <= angle && angle < 112.5) {
+//                    note = R.raw.keye;
+//                    name = "e";
+//                } else if (112.5 <= angle && angle < 157.5) {
+//                    note = R.raw.keyf;
+//                    name = "f";
+//                } else if (157.5 <= angle && angle < 202.5) {
+//                    note = R.raw.keyg;
+//                    name = "g";
+//                } else if (202.5 <= angle && angle < 247.5) {
+//                    note = R.raw.keya;
+//                    name = "a";
+//                } else if (247.5 <= angle && angle < 292.5) {
+//                    note = R.raw.keyb;
+//                    name = "b";
+//                } else {// needs to be higher C
+//                    note = R.raw.keyc5;
+//                    name = "c";
+//                }
+//                Log.wtf("Face", name + " " + angle);
 
                 mp = MediaPlayer.create(MainActivity.this, note);
                 mp.start();
@@ -840,8 +859,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 //         Normalize image
         Mat frame = inputFrame.gray();
-        Core.rotate(frame, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
-        Imgproc.resize(mRgbaT, frame, frame.size(), 0, 0, 0);
+//        Core.rotate(frame, mRgbaT, Core.ROTATE_90_COUNTERCLOCKWISE);
+//        Imgproc.resize(mRgbaT, frame, frame.size(), 0, 0, 0);
         MatOfRect rects = new MatOfRect();
 
         // Detect noses
