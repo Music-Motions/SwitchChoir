@@ -6,12 +6,19 @@
     android:layout_height="match_parent"
     android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 
+
     <org.opencv.android.JavaCameraView
         android:id="@+id/java_surface_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF" />
 
     <Button
         android:id="@+id/keyCtop"
@@ -210,14 +217,15 @@
 
     <Button
         android:id="@+id/rec"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="322dp"
-        android:layout_height="139.5dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_width="200dp"
+        android:layout_height="230dp"
+        android:layout_marginStart="89dp"
+        android:layout_marginLeft="89dp"
         android:layout_marginTop="8dp"
+
+        android:background="@drawable/recordbutton"
+
         android:scaleType="fitCenter"
-        android:text="Record"
         android:textSize="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -226,12 +234,12 @@
     <Button
         android:id="@+id/player"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="322dp"
-        android:layout_height="139.5dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_width="200dp"
+        android:layout_height="230dp"
+        android:layout_marginStart="89dp"
+        android:layout_marginLeft="89dp"
         android:layout_marginTop="8dp"
-        android:text="play"
+        android:background="@drawable/playbutton"
         android:textSize="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/rec"
@@ -240,13 +248,12 @@
     <Button
         android:id="@+id/exporter"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="322dp"
-        android:layout_height="139.5dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_width="200dp"
+        android:layout_height="230dp"
+        android:layout_marginStart="89dp"
+        android:layout_marginLeft="89dp"
         android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"
-        android:text="export"
+        android:background="@drawable/sharebutton"
         android:textSize="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/player"
