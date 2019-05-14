@@ -237,20 +237,24 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             public void onNoseThresholdPassed(Rect r) {
                 int x = width - r.x;
                 int note;
+                x -= width/8;
+                int w = (width*6)/8;
+                x = Math.min(Math.max(x, 0), w);
+//                Log.wtf("nose", x+" "+w);
 
-                if (x < width / 8) {
+                if (x < w / 8) {
                     note = R.raw.keyc;
-                } else if (x < 2 * width / 8) {
+                } else if (x < 2 * w / 8) {
                     note = R.raw.keyd;
-                } else if (x < 3 * width / 8) {
+                } else if (x < 3 * w / 8) {
                     note = R.raw.keye;
-                } else if (x < 4 * width / 8) {
+                } else if (x < 4 * w / 8) {
                     note = R.raw.keyf;
-                } else if (x < 5 * width / 8) {
+                } else if (x < 5 * w / 8) {
                     note = R.raw.keyg;
-                } else if (x < 6 * width / 8) {
+                } else if (x < 6 * w / 8) {
                     note = R.raw.keya;
-                } else if (x < 7 * width) {
+                } else if (x < 7 * w) {
                     note = R.raw.keyb;
                 } else {
                     note = R.raw.keyc5;

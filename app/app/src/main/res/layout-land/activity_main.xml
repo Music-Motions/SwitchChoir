@@ -139,7 +139,7 @@
 
     <Button
         android:id="@+id/keyC5top"
-        android:layout_width="89.0625dp"
+        android:layout_width="118.75dp"
         android:layout_height="177dp"
         android:layout_marginTop="8dp"
         android:background="#FF1D15"
