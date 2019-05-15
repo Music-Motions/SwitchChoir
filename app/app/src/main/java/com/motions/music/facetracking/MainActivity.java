@@ -43,10 +43,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     CascadeClassifier classifier;
 
-    Mat mRgbaT;
     NoseThresholder nosePlayer;
     private int width = -1;
-    private int height = -1;
 
     private Button keyCtop = null;
     private Button keyDtop = null;
@@ -79,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private MediaRecorder record;
     private MediaPlayer mp;
     private String FILE; //File path
-    private String time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,32 +85,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 
-        final Drawable myDrawable = getResources().getDrawable(R.drawable.recordbutton);
-        long timeStamp = System.currentTimeMillis();
-        time = Long.toString(System.currentTimeMillis());
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timeStamp);
-
-        int mYear = calendar.get(Calendar.YEAR);
-        int mMonth = 1 + calendar.get(Calendar.MONTH);
-        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
-        int mHour = calendar.get(Calendar.HOUR_OF_DAY);
-        int mMinute = calendar.get(Calendar.MINUTE);
-        int mSecond = calendar.get(Calendar.SECOND);
-
-        String year = Integer.toString(mYear);
-        String month = Integer.toString(mMonth);
-        String day = Integer.toString(mDay);
-        String hour = Integer.toString(mHour);
-        String min = Integer.toString(mMinute);
-        String sec = Integer.toString(mSecond);
-        String timestamp = month + "_" + day + "_" + hour + "-" + min;
-
-        FILE = Environment.getExternalStorageDirectory() + "/Music/" + "/" + timestamp + ".3gpp";
-
         Log.d("Suhani", "The place is " + Environment.getExternalStorageDirectory().getAbsolutePath());
         buttonSound();
 
+        // Intent receiver used for graying buttons
         IntentFilter filter = new IntentFilter("com.facetracking.CHANGECOLOR");
         this.registerReceiver(new Receiver(), filter);
 
@@ -237,10 +212,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             public void onNoseThresholdPassed(Rect r) {
                 int x = width - r.x;
                 int note;
-                x -= width/8;
-                int w = (width*6)/8;
+                x -= width / 8;
+                int w = (width * 6) / 8;
                 x = Math.min(Math.max(x, 0), w);
-//                Log.wtf("nose", x+" "+w);
 
                 if (x < w / 8) {
                     note = R.raw.keyc;
@@ -287,30 +261,32 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             int note = arg1.getExtras().getInt("note");
             resetButtonColors();
 
+            int gray = Color.rgb(192, 192, 192);
+
             if (note == R.raw.keyc) {
-                keyCtop.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyCbottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyCtop.setBackgroundColor(gray);
+                keyCbottom.setBackgroundColor(gray);
             } else if (note == R.raw.keyd) {
-                keyDtop.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyDbottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyDtop.setBackgroundColor(gray);
+                keyDbottom.setBackgroundColor(gray);
             } else if (note == R.raw.keye) {
-                keyEtop.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyEbottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyEtop.setBackgroundColor(gray);
+                keyEbottom.setBackgroundColor(gray);
             } else if (note == R.raw.keyf) {
-                keyFtop.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyFbottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyFtop.setBackgroundColor(gray);
+                keyFbottom.setBackgroundColor(gray);
             } else if (note == R.raw.keyg) {
-                keyGtop.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyGbottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyGtop.setBackgroundColor(gray);
+                keyGbottom.setBackgroundColor(gray);
             } else if (note == R.raw.keya) {
-                keyAtop.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyAbottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyAtop.setBackgroundColor(gray);
+                keyAbottom.setBackgroundColor(gray);
             } else if (note == R.raw.keyb) {
-                keyBtop.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyBbottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyBtop.setBackgroundColor(gray);
+                keyBbottom.setBackgroundColor(gray);
             } else if (note == R.raw.keyc5) {
-                keyC5top.setBackgroundColor(Color.rgb(192, 192, 192));
-                keyC5bottom.setBackgroundColor(Color.rgb(192, 192, 192));
+                keyC5top.setBackgroundColor(gray);
+                keyC5bottom.setBackgroundColor(gray);
             }
         }
     }
@@ -877,6 +853,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             record.release();
 
         }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        String month = Integer.toString(1 + calendar.get(Calendar.MONTH));
+        String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
+        String hour = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
+        String min = Integer.toString(calendar.get(Calendar.MINUTE));
+        String timestamp = month + "_" + day + "_" + hour + "-" + min;
+
+        FILE = Environment.getExternalStorageDirectory() + "/Music/" + "/" + timestamp + ".3gpp";
+
         File fileOut = new File(FILE);
         if (fileOut != null) {
             fileOut.delete();//Overwrites existing file before recording
@@ -988,9 +975,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public void onCameraViewStarted(int width, int height) {
         Log.i("CameraView", "started");
-        mRgbaT = new Mat(width, width, CvType.CV_8UC4);
         this.width = width;
-        this.height = height;
     }
 
     @Override
@@ -1024,12 +1009,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             else if (feature.width * feature.height > nose.width * nose.height)
                 nose = feature;
             Imgproc.rectangle(frame, feature.tl(), feature.br(), new Scalar(100), 3);
-
         }
 
         if (nose != null)
             nosePlayer.listener.onNoseThresholdPassed(nose);
-//        return new Mat();
         return frame;
     }
 
