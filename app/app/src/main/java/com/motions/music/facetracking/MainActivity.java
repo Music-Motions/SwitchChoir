@@ -41,57 +41,50 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     CascadeClassifier classifier;
-
     NoseThresholder nosePlayer;
     private int width = -1;
 
-    private Button keyCtop = null;
-    private Button keyDtop = null;
-    private Button keyEtop = null;
-    private Button keyFtop = null;
-    private Button keyGtop = null;
-    private Button keyAtop = null;
-    private Button keyBtop = null;
-    private Button keyC5top = null;
+    private Button keyCtop, keyCbottom;
+    private Button keyDflat;
+    private Button keyDtop, keyDbottom;
+    private Button keyEflat;
+    private Button keyEtop, keyEbottom;
+    private Button keyFtop, keyFbottom;
+    private Button keyGflat;
+    private Button keyGtop, keyGbottom;
+    private Button keyAflat;
+    private Button keyAtop, keyAbottom;
+    private Button keyBflat;
+    private Button keyBtop, keyBbottom;
+    private Button keyC5top, keyC5bottom;
 
-    private Button keyDflat = null;
-    private Button keyEflat = null;
-    private Button keyGflat = null;
-    private Button keyAflat = null;
-    private Button keyBflat = null;
-
-
-    private Button keyCbottom = null;
-    private Button keyDbottom = null;
-    private Button keyEbottom = null;
-    private Button keyFbottom = null;
-    private Button keyGbottom = null;
-    private Button keyAbottom = null;
-    private Button keyBbottom = null;
-    private Button keyC5bottom = null;
-
-    private Button exporter;
-    private Button player;
+    private Button exporter = null;
+    private Button player = null;
     private Button rec = null;
-    private MediaRecorder record;
-    private MediaPlayer mp;
+    private MediaRecorder record = null;
+    private MediaPlayer mp = null;
     private String FILE; //File path
 
+    /**
+     * Main and only activity of our app
+     * Constructs buttons, mediaplayer, mediarecorder, cascade classifier, and frame listener
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-
-        Log.d("Suhani", "The place is " + Environment.getExternalStorageDirectory().getAbsolutePath());
+        // construct all piano key buttons
         buttonSound();
 
         // Intent receiver used for graying buttons
         IntentFilter filter = new IntentFilter("com.facetracking.CHANGECOLOR");
-        this.registerReceiver(new Receiver(), filter);
+        this.registerReceiver(new GrayIntentReceiver(), filter);
 
-
+        // Exporting button
         exporter = (Button) findViewById(R.id.exporter);//Exporter
         exporter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 intent.setDataAndType(selectedUri, "resource/folder");
 
                 if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
+                    // switch to file explorer
                     startActivity(intent);
                 } else {
                     Toast.makeText(getApplicationContext(), "Oops! No file explorer found!", Toast.LENGTH_SHORT).show();
@@ -111,61 +105,49 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         });
 
+        // Play recording button
         player = (Button) findViewById(R.id.player);
         player.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (mp == null) {//Playback
-                    Log.d("Suhani", "3 Before try catch");
                     try {
-                        Log.d("Suhani", "4 Start Playback Method");
-
                         startPlayback();
-
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Log.d("Suhani", e.getMessage());
-
+                        Log.wtf("PlayButton", e.getMessage());
                     }
                 } else {//Stop Playback
                     stopPlayback();
-                    Log.d("Suhani", "6 Stop Playback Method");
                     player.setBackgroundResource(R.drawable.playbutton);
-
                 }
             }
         });
 
+        // Record button
         rec = (Button) findViewById(R.id.rec);//rec button
         rec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (record == null) {
-                    Log.d("Suhani", "In if statement");
                     try {
-                        Log.d("Suhani", "1 Start Record Method");
                         startRecord();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.wtf("RecordButton", e.getMessage());
                     }
                     rec.setBackgroundResource(R.drawable.stopsign);
-//                    rec.setText("End");
 
                 } else {//Stop Recording
-                    Log.d("Suhani", "2 Stop Record Method");
                     stopRecord();
                     rec.setBackgroundResource(R.drawable.recordbutton);
                 }
-
             }
-
         });
 
 
         // Set up camera view, used to get frames
         CameraBridgeViewBase cameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
-//        cameraView
         cameraView.setMaxFrameSize(320, 240);
         cameraView.setVisibility(SurfaceView.VISIBLE);
         cameraView.setCameraIndex(1);
@@ -173,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         cameraView.enableView();
 
 
-        // Load classifier into code
+        // Load pre-trained classifier file into code, from raw resources
         InputStream inputStream = getResources().openRawResource(R.raw.haarcascade_mcs_nose);
         File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
         File cascadeFile = new File(cascadeDir, "cascade.xml");
@@ -186,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
         byte[] buffer = new byte[4096];
         int bytesRead;
-
         try {
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
@@ -196,16 +177,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Initialize classifier
         classifier = new CascadeClassifier(cascadeFile.getAbsolutePath());
         Log.wtf("Classifier", cascadeFile.getAbsolutePath());
         if (classifier.empty()) {
-            Log.wtf("Cascade Error", "Failed to load cascade classifier");
-            Toast.makeText(this, "Cascade failure", Toast.LENGTH_LONG).show();
+            Log.wtf("Cascade", "Failed to load cascade classifier");
+            Toast.makeText(this, "FAILURE: PLEASE RESTART APP", Toast.LENGTH_LONG).show();
         }
 
-        // Set up listener
+        // Set up listener, thresholding values
         nosePlayer = new NoseThresholder();
-
         nosePlayer.setNoseListener(new NoseThresholder.NoseListener() {
             @Override
             public void onNoseThresholdPassed(Rect r) {
@@ -215,29 +197,31 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 int w = (width * 6) / 8;
                 x = Math.min(Math.max(x, 0), w);
 
-                if (x < w / 8) {
+                if (x < w / 8)
                     note = R.raw.keyc;
-                } else if (x < 2 * w / 8) {
+                else if (x < 2 * w / 8)
                     note = R.raw.keyd;
-                } else if (x < 3 * w / 8) {
+                else if (x < 3 * w / 8)
                     note = R.raw.keye;
-                } else if (x < 4 * w / 8) {
+                else if (x < 4 * w / 8)
                     note = R.raw.keyf;
-                } else if (x < 5 * w / 8) {
+                else if (x < 5 * w / 8)
                     note = R.raw.keyg;
-                } else if (x < 6 * w / 8) {
+                else if (x < 6 * w / 8)
                     note = R.raw.keya;
-                } else if (x < 7 * w) {
+                else if (x < 7 * w / 8)
                     note = R.raw.keyb;
-                } else {
+                else
                     note = R.raw.keyc5;
-                }
 
+
+                // Gray selected note
                 Intent i = new Intent();
                 i.setAction("com.facetracking.CHANGECOLOR");
                 i.putExtra("note", note);
                 sendBroadcast(i);
 
+                // Play selected note
                 mp = MediaPlayer.create(MainActivity.this, note);
                 mp.start();
                 mp.setOnCompletionListener(new OnCompletionListener() { //When sound ends
@@ -248,20 +232,23 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 });
             }
         });
-
-        Log.wtf("OnCreate", "Done");
     }
 
-
-    private class Receiver extends BroadcastReceiver {
+    /**
+     * Receives broadcast containing new note to gray. Thread-safe way to change background color using nose tracking.
+     */
+    private class GrayIntentReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context arg0, Intent arg1) {
+            // Gets note to gray
             int note = arg1.getExtras().getInt("note");
-            resetButtonColors();
+            resetButtonColors(); // reset background colors to rainbow
+
 
             int gray = Color.rgb(192, 192, 192);
 
+            // gray selected note
             if (note == R.raw.keyc) {
                 keyCtop.setBackgroundColor(gray);
                 keyCbottom.setBackgroundColor(gray);
@@ -287,612 +274,185 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 keyC5top.setBackgroundColor(gray);
                 keyC5bottom.setBackgroundColor(gray);
             }
+
+            // does not gray null notes
         }
     }
 
+    /**
+     * Assigns callback sounds to all keys. Very long method.
+     */
+    public void buttonSound() {
 
-    public void buttonSound() {//assigns sounds for all buttons
-
-        keyCtop = (Button) this.findViewById(R.id.keyCtop);
-        Log.wtf("Yikes", keyCtop.toString());
-        Log.wtf("Yikes", Integer.toString(R.id.keyCtop));
+        keyCtop = (Button) this.findViewById(R.id.keyCtop);                           // C
         keyCtop.setSoundEffectsEnabled(false);
-
-        keyDflat = (Button) this.findViewById(R.id.keyDflat);
-        keyDflat.setSoundEffectsEnabled(false);
-
-        keyDtop = (Button) this.findViewById(R.id.keyDtop);
-        keyDtop.setSoundEffectsEnabled(false);
-
-        keyEflat = (Button) this.findViewById(R.id.keyEflat);
-        keyEflat.setSoundEffectsEnabled(false);
-
-        keyEtop = (Button) this.findViewById(R.id.keyEtop);
-        keyEtop.setSoundEffectsEnabled(false);
-
-        keyFtop = (Button) this.findViewById(R.id.keyFtop);
-        keyFtop.setSoundEffectsEnabled(false);
-
-        keyGflat = (Button) this.findViewById(R.id.keyGflat);
-        keyGflat.setSoundEffectsEnabled(false);
-
-        keyGtop = (Button) this.findViewById(R.id.keyGtop);
-        keyGtop.setSoundEffectsEnabled(false);
-
-        keyAflat = (Button) this.findViewById(R.id.keyAflat);
-        keyAflat.setSoundEffectsEnabled(false);
-
-        keyAtop = (Button) this.findViewById(R.id.keyAtop);
-        keyAtop.setSoundEffectsEnabled(false);
-
-        keyBflat = (Button) this.findViewById(R.id.keyBflat);
-        keyBflat.setSoundEffectsEnabled(false);
-
-        keyBtop = (Button) this.findViewById(R.id.keyBtop);
-        keyBtop.setSoundEffectsEnabled(false);
-
-        keyC5top = (Button) this.findViewById(R.id.keyC5top);
-        keyC5top.setSoundEffectsEnabled(false);
-
-
-        //bottom parts of the keys initialized
         keyCbottom = (Button) this.findViewById(R.id.keyCbottom);
         keyCbottom.setSoundEffectsEnabled(false);
-
+        keyDflat = (Button) this.findViewById(R.id.keyDflat);                        // D flat
+        keyDflat.setSoundEffectsEnabled(false);
+        keyDtop = (Button) this.findViewById(R.id.keyDtop);                          // D
+        keyDtop.setSoundEffectsEnabled(false);
         keyDbottom = (Button) this.findViewById(R.id.keyDbottom);
         keyDbottom.setSoundEffectsEnabled(false);
-
+        keyEflat = (Button) this.findViewById(R.id.keyEflat);                        // E flat
+        keyEflat.setSoundEffectsEnabled(false);
+        keyEtop = (Button) this.findViewById(R.id.keyEtop);                          // E
+        keyEtop.setSoundEffectsEnabled(false);
         keyEbottom = (Button) this.findViewById(R.id.keyEbottom);
         keyEbottom.setSoundEffectsEnabled(false);
-
+        keyFtop = (Button) this.findViewById(R.id.keyFtop);                          // F
+        keyFtop.setSoundEffectsEnabled(false);
         keyFbottom = (Button) this.findViewById(R.id.keyFbottom);
         keyFbottom.setSoundEffectsEnabled(false);
-
+        keyGflat = (Button) this.findViewById(R.id.keyGflat);                        // G flat
+        keyGflat.setSoundEffectsEnabled(false);
+        keyGtop = (Button) this.findViewById(R.id.keyGtop);                          // G
+        keyGtop.setSoundEffectsEnabled(false);
         keyGbottom = (Button) this.findViewById(R.id.keyGbottom);
         keyGbottom.setSoundEffectsEnabled(false);
-
+        keyAflat = (Button) this.findViewById(R.id.keyAflat);                        // A flat
+        keyAflat.setSoundEffectsEnabled(false);
         keyAbottom = (Button) this.findViewById(R.id.keyAbottom);
         keyAbottom.setSoundEffectsEnabled(false);
-
+        keyAtop = (Button) this.findViewById(R.id.keyAtop);                          // A
+        keyAtop.setSoundEffectsEnabled(false);
+        keyBflat = (Button) this.findViewById(R.id.keyBflat);
+        keyBflat.setSoundEffectsEnabled(false);
+        keyBtop = (Button) this.findViewById(R.id.keyBtop);                          // B
+        keyBtop.setSoundEffectsEnabled(false);
         keyBbottom = (Button) this.findViewById(R.id.keyBbottom);
         keyBbottom.setSoundEffectsEnabled(false);
-
+        keyC5top = (Button) this.findViewById(R.id.keyC5top);                        // C (high)
+        keyC5top.setSoundEffectsEnabled(false);
         keyC5bottom = (Button) this.findViewById(R.id.keyC5bottom);
         keyC5bottom.setSoundEffectsEnabled(false);
 
-//giving the notes sounds
-        keyCtop.setOnTouchListener(new View.OnTouchListener() {
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keya);
-                sendBroadcast(i);
-
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keya);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-
-                    }
-                });
-                return true;
-            }
-
-
-        });
-        keyCbottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyc);
-                sendBroadcast(i);
-
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyc);
-                if (mp == null) {
-                    Log.d("Suhani", "null");
-                } else {
-                    mp.start();
-                    mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            mp.release();//Releases system resources
-
-                        }
-                    });
-                }
-                return true;
-            }
-
-
-        });
-
-        keyDflat.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keydb);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keydb);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-
-                    }
-                });
-                return true;
-
-
-            }
-
-        });
-
-        keyDtop.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyd);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyd);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-
-
-            }
-
-        });
-        keyDbottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyd);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyd);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-
-
-            }
-
-        });
-
-        keyEflat.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyeb);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyeb);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyEtop.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keye);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keye);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-
-
-            }
-
-        });
-        keyEbottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keye);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keye);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyFtop.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyf);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyf);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        Log.d("Suhani", "Player: MediaPlayer released");
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyFbottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyf);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyf);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        Log.d("Suhani", "Player: MediaPlayer released");
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyGflat.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keygb);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keygb);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyGtop.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyg);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyg);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyGbottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyg);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyg);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyAflat.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyab);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyab);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyAtop.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keya);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keya);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-        });
-
-        keyAbottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keya);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keya);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyBflat.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keybb);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keybb);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyBtop.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyb);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyb);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyBbottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyb);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyb);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-
-                    }
-                });
-                return true;
-            }
-
-        });
-        keyC5top.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyc5);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyc5);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-
-
-            }
-
-        });
-        keyC5bottom.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Intent i = new Intent();
-                i.setAction("com.facetracking.CHANGECOLOR");
-                i.putExtra("note", R.raw.keyc5);
-                sendBroadcast(i);
-                mp = MediaPlayer.create(MainActivity.this, R.raw.keyc5);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                        Intent i = new Intent();
-                        i.setAction("com.facetracking.CHANGECOLOR");
-                        i.putExtra("note", -1);
-                    }
-                });
-                return true;
-            }
-
-        });
+        /*
+         * Assigns onTouch listener to every button
+         */
+        keyCtop.setOnTouchListener(new KeyButton(R.raw.keyc));
+        keyCbottom.setOnTouchListener(new KeyButton(R.raw.keyc));
+        keyDflat.setOnTouchListener(new KeyButton(R.raw.keydb));
+        keyDtop.setOnTouchListener(new KeyButton(R.raw.keyd));
+        keyDbottom.setOnTouchListener(new KeyButton(R.raw.keyd));
+        keyEflat.setOnTouchListener(new KeyButton(R.raw.keye));
+        keyEtop.setOnTouchListener(new KeyButton(R.raw.keye));
+        keyEbottom.setOnTouchListener(new KeyButton(R.raw.keye));
+        keyFtop.setOnTouchListener(new KeyButton(R.raw.keyf));
+        keyFbottom.setOnTouchListener(new KeyButton(R.raw.keyf));
+        keyGflat.setOnTouchListener(new KeyButton(R.raw.keygb));
+        keyGtop.setOnTouchListener(new KeyButton(R.raw.keyg));
+        keyGbottom.setOnTouchListener(new KeyButton(R.raw.keyg));
+        keyAflat.setOnTouchListener(new KeyButton(R.raw.keyab));
+        keyAtop.setOnTouchListener(new KeyButton(R.raw.keya));
+        keyAbottom.setOnTouchListener(new KeyButton(R.raw.keya));
+        keyBflat.setOnTouchListener(new KeyButton(R.raw.keybb));
+        keyBtop.setOnTouchListener(new KeyButton(R.raw.keyb));
+        keyBbottom.setOnTouchListener(new KeyButton(R.raw.keyb));
+        keyC5top.setOnTouchListener(new KeyButton(R.raw.keyc5));
+        keyC5bottom.setOnTouchListener(new KeyButton(R.raw.keyc5));
     }
 
+    /**
+     * Custom onTouchListener, plays given note
+     */
+    private class KeyButton implements View.OnTouchListener {
+        int note;
 
-    public void startRecord() throws Exception {//Throws exceptions
+        /**
+         * Assigns note to be played when touched
+         * @param note id of raw note file (R.raw.NOTENAME)
+         */
+        public KeyButton(int note) {
+            super();
+            this.note = note;
+        }
+
+        /**
+         * Plays note when pressed
+         * @param v current view
+         * @param event touch even
+         * @return true
+         */
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            // Broadcasts change note to gray intent
+            Intent i = new Intent();
+            i.setAction("com.facetracking.CHANGECOLOR");
+            i.putExtra("note", R.raw.keyc5);
+            sendBroadcast(i);
+
+            // Plays note
+            mp = MediaPlayer.create(MainActivity.this, note);
+            mp.start();
+            mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();//Releases system resources
+                    Intent i = new Intent();
+                    i.setAction("com.facetracking.CHANGECOLOR");
+                    i.putExtra("note", -1);
+                }
+            });
+            return true;
+        }
+    }
+
+    /**
+     * Starts the recording of the song
+     */
+    public void startRecord() {
+        // Reset recorder if needed
         if (record != null) {
-            Log.d("Suhani", "1a Record Stop");
             record.stop();
-            Log.d("Suhani", "1b Record Reset");
             record.reset();
-            Log.d("Suhani", "1c Record Release");
             record.release();
 
         }
+
+        // Get time for filename
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-
         String month = Integer.toString(1 + calendar.get(Calendar.MONTH));
         String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
         String hour = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
         String min = Integer.toString(calendar.get(Calendar.MINUTE));
         String timestamp = month + "_" + day + "_" + hour + "-" + min;
 
+        // Construct recording file
         FILE = Environment.getExternalStorageDirectory() + "/Music/" + "/" + timestamp + ".3gpp";
-
         File fileOut = new File(FILE);
-        if (fileOut != null) {
+        if (fileOut != null)
             fileOut.delete();//Overwrites existing file before recording
-            Log.d("Suhani", "If file is not null");
-        }
         record = new MediaRecorder();
         record.setAudioSource(MediaRecorder.AudioSource.MIC);
         record.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         record.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         record.setOutputFile(FILE);//File path
 
+        // Begin recording
         try {
             record.prepare();
         } catch (IOException e) {
-            Log.d("Suhani", " prepare() failed");
+            Log.d("Recorder", "prepare() failed");
         }
         record.start();
     }
 
-
+    /**
+     * Stops recording the song
+     */
     public void stopRecord() {
-        Log.d("Suhani", "2a Record is stopped");
         record.stop();
-        Log.d("Suhani", "2b Record is reset");
-        Log.d("Suhani", "2c Record is released");
         record.release();
         record = null;
         mp = null;
     }
 
+    /**
+     * Plays the last recorded song in this session
+     */
     public void startPlayback() {
 
         mp = new MediaPlayer();
@@ -924,6 +484,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
+    /**
+     * Stops playing back the recording
+     */
     public void stopPlayback() {
 
         mp.release();//Releases system resources
@@ -934,6 +497,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
+    /**
+     * Resets the key colors to rainbow
+     */
     public void resetButtonColors() {
         int ORANGE = Color.parseColor("#FF6B20");
         int BLUE = Color.parseColor("#02A9EA");
@@ -1007,7 +573,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 nose = feature;
             else if (feature.width * feature.height > nose.width * nose.height)
                 nose = feature;
-            Imgproc.rectangle(frame, feature.tl(), feature.br(), new Scalar(100), 3);
         }
 
         if (nose != null)
