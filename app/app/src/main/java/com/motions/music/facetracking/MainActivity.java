@@ -1,16 +1,20 @@
 package com.motions.music.facetracking;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,7 +37,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
-
+/**
+ * Our one, main activity
+ */
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     static {
@@ -76,6 +82,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        // Ask for permissions
+        int ASK_CAMERA = 1292038, ASK_RECORD = 28392193, ASK_WRITE = 389140149, ASK_READ = 9384012;
+        askPermission(Manifest.permission.CAMERA, ASK_CAMERA);
+        askPermission(Manifest.permission.RECORD_AUDIO, ASK_RECORD);
+        askPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, ASK_WRITE);
+        askPermission(Manifest.permission.READ_EXTERNAL_STORAGE, ASK_READ);
+
 
         // construct all piano key buttons
         buttonSound();
@@ -232,6 +246,20 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 });
             }
         });
+    }
+
+    public void askPermission(String permission, int permId) {
+        // Ask for permission to use camera
+        if (ContextCompat.checkSelfPermission(this, permission)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{permission}, permId);
+            }
+        } else {
+            // Permission has already been granted
+        }
     }
 
     /**
@@ -411,7 +439,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             record.stop();
             record.reset();
             record.release();
-
         }
 
         // Get time for filename
