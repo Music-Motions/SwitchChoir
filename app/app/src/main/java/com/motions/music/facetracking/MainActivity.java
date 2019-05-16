@@ -1,5 +1,6 @@
 package com.motions.music.facetracking;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +25,6 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.core.Core;
 import org.opencv.core.*;
 import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
      * Main and only activity of our app
      * Constructs buttons, mediaplayer, mediarecorder, cascade classifier, and frame listener
      *
-     * @param savedInstanceState
+     * @param savedInstanceState last state
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -282,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     /**
      * Assigns callback sounds to all keys. Very long method.
      */
+    @SuppressLint("ClickableViewAccessibility")
     public void buttonSound() {
 
         keyCtop = (Button) this.findViewById(R.id.keyCtop);                           // C
@@ -362,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         /**
          * Assigns note to be played when touched
+         *
          * @param note id of raw note file (R.raw.NOTENAME)
          */
         public KeyButton(int note) {
@@ -371,7 +373,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         /**
          * Plays note when pressed
-         * @param v current view
+         *
+         * @param v     current view
          * @param event touch even
          * @return true
          */
@@ -380,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             // Broadcasts change note to gray intent
             Intent i = new Intent();
             i.setAction("com.facetracking.CHANGECOLOR");
-            i.putExtra("note", R.raw.keyc5);
+            i.putExtra("note", note);
             sendBroadcast(i);
 
             // Plays note
