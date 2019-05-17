@@ -296,6 +296,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 } else if (note == R.raw.keyc5) {
                     keyC5top.setBackgroundColor(gray);
                     keyC5bottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keyab) {
+                    keyAflat.setBackgroundColor(gray);
+                } else if (note == R.raw.keybb) {
+                    keyBflat.setBackgroundColor(gray);
+                } else if (note == R.raw.keydb) {
+                    keyDflat.setBackgroundColor(gray);
+                } else if (note == R.raw.keyeb) {
+                    keyEflat.setBackgroundColor(gray);
+                } else if (note == R.raw.keygb) {
+                    keyGflat.setBackgroundColor(gray);
                 }
 
                 // Play selected note
@@ -373,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         keyDflat.setOnTouchListener(new KeyButton(R.raw.keydb));
         keyDtop.setOnTouchListener(new KeyButton(R.raw.keyd));
         keyDbottom.setOnTouchListener(new KeyButton(R.raw.keyd));
-        keyEflat.setOnTouchListener(new KeyButton(R.raw.keye));
+        keyEflat.setOnTouchListener(new KeyButton(R.raw.keyeb));
         keyEtop.setOnTouchListener(new KeyButton(R.raw.keye));
         keyEbottom.setOnTouchListener(new KeyButton(R.raw.keye));
         keyFtop.setOnTouchListener(new KeyButton(R.raw.keyf));
