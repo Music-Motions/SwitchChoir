@@ -70,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private MediaRecorder record = null;
     private MediaPlayer mp = null;
     private String FILE; //File path
+    private final int NO_NOTE = -1;
+
+    private int notePlaying = NO_NOTE;
 
     /**
      * Main and only activity of our app
@@ -84,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         // Ask for permissions
-        int ASK_CAMERA = 1292038, ASK_RECORD = 28392193, ASK_WRITE = 389140149, ASK_READ = 9384012;
+        int ASK_CAMERA = 1298, ASK_RECORD = 2193, ASK_WRITE = 3149, ASK_READ = 312;
         askPermission(Manifest.permission.CAMERA, ASK_CAMERA);
         askPermission(Manifest.permission.RECORD_AUDIO, ASK_RECORD);
         askPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, ASK_WRITE);
@@ -234,16 +237,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 i.setAction("com.facetracking.CHANGECOLOR");
                 i.putExtra("note", note);
                 sendBroadcast(i);
-
-                // Play selected note
-                mp = MediaPlayer.create(MainActivity.this, note);
-                mp.start();
-                mp.setOnCompletionListener(new OnCompletionListener() { //When sound ends
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.release();//Releases system resources
-                    }
-                });
             }
         });
     }
@@ -271,36 +264,51 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         public void onReceive(Context arg0, Intent arg1) {
             // Gets note to gray
             int note = arg1.getExtras().getInt("note");
-            resetButtonColors(); // reset background colors to rainbow
 
+            if (notePlaying != note) {
+                resetButtonColors(); // reset background colors to rainbow
 
-            int gray = Color.rgb(192, 192, 192);
+                notePlaying = note;
+                int gray = Color.rgb(192, 192, 192);
 
-            // gray selected note
-            if (note == R.raw.keyc) {
-                keyCtop.setBackgroundColor(gray);
-                keyCbottom.setBackgroundColor(gray);
-            } else if (note == R.raw.keyd) {
-                keyDtop.setBackgroundColor(gray);
-                keyDbottom.setBackgroundColor(gray);
-            } else if (note == R.raw.keye) {
-                keyEtop.setBackgroundColor(gray);
-                keyEbottom.setBackgroundColor(gray);
-            } else if (note == R.raw.keyf) {
-                keyFtop.setBackgroundColor(gray);
-                keyFbottom.setBackgroundColor(gray);
-            } else if (note == R.raw.keyg) {
-                keyGtop.setBackgroundColor(gray);
-                keyGbottom.setBackgroundColor(gray);
-            } else if (note == R.raw.keya) {
-                keyAtop.setBackgroundColor(gray);
-                keyAbottom.setBackgroundColor(gray);
-            } else if (note == R.raw.keyb) {
-                keyBtop.setBackgroundColor(gray);
-                keyBbottom.setBackgroundColor(gray);
-            } else if (note == R.raw.keyc5) {
-                keyC5top.setBackgroundColor(gray);
-                keyC5bottom.setBackgroundColor(gray);
+                // gray selected note
+                if (note == R.raw.keyc) {
+                    keyCtop.setBackgroundColor(gray);
+                    keyCbottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keyd) {
+                    keyDtop.setBackgroundColor(gray);
+                    keyDbottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keye) {
+                    keyEtop.setBackgroundColor(gray);
+                    keyEbottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keyf) {
+                    keyFtop.setBackgroundColor(gray);
+                    keyFbottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keyg) {
+                    keyGtop.setBackgroundColor(gray);
+                    keyGbottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keya) {
+                    keyAtop.setBackgroundColor(gray);
+                    keyAbottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keyb) {
+                    keyBtop.setBackgroundColor(gray);
+                    keyBbottom.setBackgroundColor(gray);
+                } else if (note == R.raw.keyc5) {
+                    keyC5top.setBackgroundColor(gray);
+                    keyC5bottom.setBackgroundColor(gray);
+                }
+
+                // Play selected note
+                mp = MediaPlayer.create(MainActivity.this, note);
+                mp.start();
+                mp.setOnCompletionListener(new OnCompletionListener() { //When sound ends
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.release();//Releases system resources
+                        notePlaying = NO_NOTE;
+                        resetButtonColors();
+                    }
+                });
             }
 
             // does not gray null notes
@@ -413,19 +421,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             i.setAction("com.facetracking.CHANGECOLOR");
             i.putExtra("note", note);
             sendBroadcast(i);
-
-            // Plays note
-            mp = MediaPlayer.create(MainActivity.this, note);
-            mp.start();
-            mp.setOnCompletionListener(new OnCompletionListener() {//When sound ends
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.release();//Releases system resources
-                    Intent i = new Intent();
-                    i.setAction("com.facetracking.CHANGECOLOR");
-                    i.putExtra("note", -1);
-                }
-            });
             return true;
         }
     }
